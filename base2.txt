@@ -1,0 +1,16 @@
+#date: 14.05.25 
+#author: group 1 - Nuwa, Jan, Marlene
+#name: base1 for project 2025 
+#type: general start for the project to get organized an branche of ;)
+
+import pandas as pd
+import numpy as np
+import datetime as dt
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import GridSearchCV,train_test_split,cross_val_predict
+from sklearn.metrics import r2_score, mean_absolute_error, mean_absolute_percentage_error,root_mean_squared_error,mean_squared_error
+from sklearn.neighbors import KNeighborsRegressor
+import matplotlib.pyplot as plt
+
+scaler=StandardScaler() 
+######
