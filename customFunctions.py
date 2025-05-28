@@ -16,8 +16,8 @@ def read_ts_csv(filename):
         
     return df
 
-def compute_yield(results, algo):
-
+def compute_yield(algo):
+    results = algo.calc_farm(calc_parameters={"chunk_size_states": 1000})
     # how to call inside script:
     # from customFunctions import compute_yield
 
@@ -89,7 +89,7 @@ def setup_windfarm(wind_data, windfarm_name = 'my_farm', TI = 0.05, RHO = 1.225,
         fixed_vars={FV.RHO: RHO, FV.TI: TI},
     )
 
-    algo = foxes.algorithms.Downwind(
+    my_algo = foxes.algorithms.Downwind(
         mbook=my_mbook,
         farm=my_farm,
         states=my_states,
@@ -97,4 +97,4 @@ def setup_windfarm(wind_data, windfarm_name = 'my_farm', TI = 0.05, RHO = 1.225,
         wake_models=wake_models,
         verbosity=0,
     )
-    return my_farm
+    return [my_farm,my_algo]
