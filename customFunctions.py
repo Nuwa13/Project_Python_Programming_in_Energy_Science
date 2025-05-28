@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import foxes
+import foxes.variables as FV
 
 def read_ts_csv(filename):
     df = pd.read_csv(filename, parse_dates=['Unnamed: 0'])
