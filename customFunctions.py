@@ -60,7 +60,7 @@ def compute_yield(algo):
 
 
 
-def setup_windfarm(wind_data, windfarm_name = 'my_farm', TI = 0.05, RHO = 1.225, wake_models = ["Bastankhah2014_linear_k004"],model_book = None,layout_data = None,turbine_key = None):
+def setup_algo(wind_data, windfarm_name = 'my_farm', TI = 0.05, RHO = 1.225, wake_models = ["Bastankhah2014_linear_k004"],model_book = None,layout_data = None,turbine_key = None):
     my_farm = foxes.WindFarm(name=windfarm_name)
 
     if model_book is None:
@@ -96,4 +96,4 @@ def setup_windfarm(wind_data, windfarm_name = 'my_farm', TI = 0.05, RHO = 1.225,
         wake_models=wake_models,
         verbosity=0,
     )
-    return [my_farm,my_algo]
+    return my_algo
