@@ -61,12 +61,21 @@ def compute_yield(results, algo):
 
 
 
-def setup_windfarm(wind_data, windfarm_name = 'my_farm', TI = 0.05, RHO = 1.225, wake_models = ["Bastankhah2014_linear_k004"],model_book = None):
+def setup_windfarm(wind_data, windfarm_name = 'my_farm', TI = 0.05, RHO = 1.225, wake_models = ["Bastankhah2014_linear_k004"],model_book = None,layout_data = None,turbine_key = None):
     my_farm = foxes.WindFarm(name=windfarm_name)
+
     if model_book is None:
         my_mbook = foxes.models.ModelBook()
     else:
         my_mbook = model_book
+
+    if turbine_key is None:
+        my_turbine_key = ["NREL5MW"]
+
+    if layout_data is None:
+        layout_data = pd.read_csv('turbine-info/coordinates/area_of_interest/layout-N-10.1.geom.csv',
+                              index_col='Unnamed: 0').sort_values(by='y', ascending=False).reset_index(inplace=False)
+    foxes.input.farm_layout.add_from_csv(my_farm, layout_data, turbine_models=my_turbine_key)
 
     if 'WS' not in wind_data.columns:
         print('setup_windfarm dailed: wind speed data should be named "WS" but there is no such column in the input data!')
