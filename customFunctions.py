@@ -24,8 +24,7 @@ def compute_yield(algo):
     # turbine_stats, summary = compute_yield(results, algo)
     # print(turbine_stats)
     # print(summary)
-
-    eval_ = FarmResultsEval(results)
+    eval_ = foxes.output.FarmResultsEval(results)
     eval_.add_capacity(algo)
     eval_.add_capacity(algo, ambient=True)
     eval_.add_efficiency()
