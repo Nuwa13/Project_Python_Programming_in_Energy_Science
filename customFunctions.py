@@ -70,6 +70,8 @@ def setup_algo(wind_data, windfarm_name = 'my_farm', TI = 0.05, RHO = 1.225, wak
 
     if turbine_key is None:
         my_turbine_key = ["NREL5MW"]
+    else:
+        my_turbine_key = turbine_key
 
     if layout_data is None:
         layout_data = pd.read_csv('turbine-info/coordinates/area_of_interest/layout-N-10.1.geom.csv',
