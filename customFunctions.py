@@ -11,8 +11,8 @@ def read_ts_csv(filename):
     df.drop_duplicates(subset='Time', inplace=True)
 
                 # check for -999 and replace with NaN if applicable
-    if -999 in df:
-        df[df==-999] = np.nan
+    if (df == -999).any().any():
+        df.replace(-999, np.nan, inplace=True)
         
     return df
 
