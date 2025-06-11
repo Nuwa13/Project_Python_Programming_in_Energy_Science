@@ -186,7 +186,7 @@ def correct_long_term_wind(wind_model, wind_measurement, classifier, param_grid)
     # make your final prediction for the entire (long-term) period
     X_scaledN = scaler.transform(X)
     
-    print_performance(y_train_cv,y_train, 'Cross Validation')
+    # print_performance(y_train_cv,y_train, 'Cross Validation')
     print_performance(x.iloc[:, 0], y.iloc[:, 0], 'Without Correction')
     print_performance(y_test_predicted, y_test, 'Model and Test Data')
 
@@ -203,3 +203,10 @@ def wind_components(wind_vel, wind_dir):
     v = - np.abs(wind_vel) * np.cos(wind_dir)
     
     return u, v
+
+def wind_speed_dir(u, v):
+    
+    wind_speed = np.sqrt(u**2 + v**2)
+    wind_dir = (np.arctan2(u, v) * 180 / np.pi + 180) % 360
+    
+    return wind_speed, wind_dir
