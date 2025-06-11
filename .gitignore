@@ -1,4 +1,4 @@
 requirements.txt
 /.idea/*
-git rm -rf /__pycache__/*
+__pycache__/
 *.pyc
