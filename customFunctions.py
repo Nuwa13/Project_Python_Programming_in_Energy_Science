@@ -138,7 +138,7 @@ def correct_long_term_wind(wind_model, wind_measurement, classifier, param_grid)
 
     #find index of valid values
     meas_idx = Y[Y.notnull().all(axis=1)].index
-    meas_idx = [wind_measurement.index.get_loc(value) for value in valid_values]
+    meas_idx = [wind_measurement.index.get_loc(value) for value in meas_idx]
 
     XtoPredict = X.loc[idx]
 
