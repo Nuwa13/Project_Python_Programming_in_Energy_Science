@@ -137,16 +137,16 @@ def correct_long_term_wind(wind_model, wind_measurement, classifier, param_grid)
     idx = Y[Y.isnull().any(axis=1)].index
 
     #find index of valid values
-    valid_values = Y[Y.notnull().all(axis=1)].index
-    valid_values = [wind_measurement.index.get_loc(value) for value in valid_values]
+    meas_idx = Y[Y.notnull().all(axis=1)].index
+    meas_idx = [wind_measurement.index.get_loc(value) for value in valid_values]
 
     XtoPredict = X.loc[idx]
 
     # features
-    x = X.iloc[valid_values]
+    x = X.iloc[meas_idx]
 
     # target
-    y = Y.iloc[valid_values]
+    y = Y.iloc[meas_idx]
     xcols = X.columns
     
     # split data into training and test data (https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html)
@@ -191,4 +191,4 @@ def correct_long_term_wind(wind_model, wind_measurement, classifier, param_grid)
     print_performance(y_test_predicted, y_test, 'Model and Test Data')
 
         
-    return best_model.predict(X_scaledN), valid_values
+    return best_model.predict(X_scaledN), meas_idx
