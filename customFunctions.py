@@ -192,3 +192,14 @@ def correct_long_term_wind(wind_model, wind_measurement, classifier, param_grid)
 
         
     return best_model.predict(X_scaledN), meas_idx
+
+def wind_components(wind_vel, wind_dir):
+    # check whether the direction is given in degree or radians:
+    if np.nanmax(wind_dir) > 2 * np.pi:
+        # convert degree into radian
+        wind_dir = np.deg2rad(wind_dir)
+        
+    u = - np.abs(wind_vel) * np.sin(wind_dir)
+    v = - np.abs(wind_vel) * np.cos(wind_dir)
+    
+    return u, v
