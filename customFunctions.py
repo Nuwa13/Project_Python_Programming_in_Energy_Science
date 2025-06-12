@@ -6,6 +6,7 @@ import sklearn
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV, train_test_split, cross_val_predict
 from sklearn.metrics import r2_score, mean_absolute_error, mean_absolute_percentage_error,root_mean_squared_error,mean_squared_error
+import warnings
 
 scaler = StandardScaler()
 
@@ -84,15 +85,25 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
                               index_col='Unnamed: 0').sort_values(by='y', ascending=False).reset_index(inplace=False)
     foxes.input.farm_layout.add_from_csv(my_farm, layout_data, turbine_models=my_turbine_key)
 
-    if 'WS' not in wind_data.columns:
-        print('setup_windfarm dailed: wind speed data should be named "WS" but there is no such column in the input data!')
-    if 'WD' not in wind_data.columns:
-        print(
-            'setup_windfarm dailed: wind speed data should be named "WD" but there is no such column in the input data!')
+    if 'WS' not in '\t'.join(wind_data.columns.values):
+        warnings.warn('setup_windfarm failed: wind speed data should be named "WS" but there is no such column in the input data!')
+    else:
+        WS_col = next((s for s in wind_data.columns.values if 'WS' in s), None)
+        
+    if 'WD' not in '\t'.join(wind_data.columns.values):
+        warnings.warn('setup_windfarm failed: wind speed data should be named "WD" but there is no such column in the input data!')
+    else:
+        WD_col = next((s for s in wind_data.columns.values if 'WD' in s), None)
+
+    # if 'WS' not in wind_data.columns:
+    #     print('setup_windfarm failed: wind speed data should be named "WS" but there is no such column in the input data!')
+    # if 'WD' not in wind_data.columns:
+    #     print(
+    #         'setup_windfarm failed: wind speed data should be named "WD" but there is no such column in the input data!')
     my_states = foxes.input.states.Timeseries(
         data_source=wind_data,
         output_vars=[FV.WS, FV.WD, FV.TI, FV.RHO],
-        var2col={FV.WS: "WS", FV.WD: "WD"},
+        var2col={FV.WS: WS_col, FV.WD: WD_col},
         fixed_vars={FV.RHO: RHO, FV.TI: TI},
     )
 
