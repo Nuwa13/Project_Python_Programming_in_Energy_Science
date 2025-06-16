@@ -118,7 +118,7 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
     return my_algo
 
 
-def print_performance(y_predicted,y_true, title=''):
+def print_performance(y_predicted, y_true, title=''):
     print('Validation scores - ' + title + ':')
     print('-------------------------')
     print('R2-Score: ',round(r2_score(y_true, y_predicted),4))
