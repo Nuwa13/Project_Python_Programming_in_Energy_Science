@@ -126,6 +126,11 @@ def print_performance(y_predicted, y_true, title=''):
     print('RMSE: ',round(root_mean_squared_error(y_true, y_predicted), 4))
     print('MAE: ',round(mean_absolute_error(y_true, y_predicted), 4))
     print('MAPE: ',round(mean_absolute_percentage_error(y_true, y_predicted)*100, 4))
+    return [r2_score(y_true, y_predicted), 
+            mean_squared_error(y_true, y_predicted), 
+            root_mean_squared_error(y_true, y_predicted),
+            mean_absolute_error(y_true, y_predicted),
+            mean_absolute_percentage_error(y_true, y_predicted)*100]
     
 
 
@@ -199,10 +204,10 @@ def correct_long_term_wind(wind_model, wind_measurement, classifier, param_grid)
     
     # print_performance(y_train_cv,y_train, 'Cross Validation')
     print_performance(x.iloc[:, 0], y.iloc[:, 0], 'Without Correction')
-    print_performance(y_test_predicted, y_test, 'Model and Test Data')
+    performance = print_performance(y_test_predicted, y_test, 'Model and Test Data')
 
         
-    return best_model.predict(X_scaledN), meas_idx
+    return best_model.predict(X_scaledN), meas_idx, performance
 
 def wind_components(wind_vel, wind_dir):
     # check whether the direction is given in degree or radians:
