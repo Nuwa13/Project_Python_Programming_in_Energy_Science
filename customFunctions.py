@@ -81,9 +81,15 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
         my_turbine_key = turbine_key
 
     if layout_data is None:
-        layout_data = pd.read_csv('turbine-info/coordinates/area_of_interest/layout-N-10.1.geom.csv',
-                              index_col='Unnamed: 0').sort_values(by='y', ascending=False).reset_index(inplace=False)
+        data1 = pd.read_csv('turbine-info/coordinates/area_of_interest/layout-N-10.1.geom.csv',
+                              index_col='Unnamed: 0')
+        data2 = pd.read_csv('turbine-info/coordinates/area_of_interest/layout-N-10.2.geom.csv',
+                              index_col='Unnamed: 0')
+        data_both = pd.concat([data1, data2], axis=0)
+        layout_data = data_both.sort_values(by='y', ascending=False).reset_index(inplace=False)
+
     foxes.input.farm_layout.add_from_csv(my_farm, layout_data, turbine_models=my_turbine_key)
+
 
     if 'WS' not in '\t'.join(wind_data.columns.values):
         warnings.warn('setup_windfarm failed: wind speed data should be named "WS" but there is no such column in the input data!')
