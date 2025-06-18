@@ -25,12 +25,9 @@ def read_ts_csv(filename):
 
 def compute_yield(algo):
     results = algo.calc_farm(calc_parameters={"chunk_size_states": 1000})
-    # how to call inside script:
-    # from customFunctions import compute_yield
+    results = results.isel(turbine=slice(0, 166))
+    turbine_names = algo.farm.turbine_names[:166]  # Just used for indexing
 
-    # turbine_stats, summary = compute_yield(results, algo)
-    # print(turbine_stats)
-    # print(summary)
     eval_ = foxes.output.FarmResultsEval(results)
     eval_.add_capacity(algo)
     eval_.add_capacity(algo, ambient=True)
@@ -48,13 +45,13 @@ def compute_yield(algo):
         "Ambient Yield [GWh]": yld_amb,
         "Net Yield     [GWh]": yld_net,
         "Efficiency         ": eff_per
-    }, index=algo.farm.turbine_names)
+    }, index=turbine_names)
 
     # Farm-level summary
     farm_ambient = eval_.calc_mean_farm_power(ambient=True) / 1000  # MW
-    farm_net     = eval_.calc_mean_farm_power()          / 1000     # MW
-    farm_eff     = eval_.calc_farm_efficiency()                   # unitless
-    annual_yld   = yld_net.sum()                                  # GWh
+    farm_net     = eval_.calc_mean_farm_power() / 1000              # MW
+    farm_eff     = eval_.calc_farm_efficiency()
+    annual_yld   = yld_net.sum()                                    # GWh
 
     summary = {
         "farm_ambient_power_MW": farm_ambient,
@@ -64,6 +61,7 @@ def compute_yield(algo):
     }
 
     return turbine_stats, summary
+
 
 
 
