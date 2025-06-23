@@ -23,13 +23,6 @@ def read_ts_csv(filename):
         
     return df
 
-def list_flatten(list):
-    for item in list:
-        try:
-            yield from list_flatten(item)
-        except TypeError:
-            yield item
-
 def compute_yield(algo):
     results = algo.calc_farm(calc_parameters={"chunk_size_states": 1000})
     results = results.isel(turbine=slice(0, 166))
@@ -92,9 +85,11 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
                               index_col='Unnamed: 0')
         data_both = pd.concat([data1, data2], axis=0)
         layout_data = data_both.sort_values(by='y', ascending=False).reset_index(inplace=False)
+        
+    else:
+        layout_data.reset_index(drop=True, inplace=True)
 
     foxes.input.farm_layout.add_from_csv(my_farm, layout_data, turbine_models=my_turbine_key)
-
 
     if 'WS' not in '\t'.join(wind_data.columns.values):
         warnings.warn('setup_windfarm failed: wind speed data should be named "WS" but there is no such column in the input data!')
