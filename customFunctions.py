@@ -24,7 +24,7 @@ def read_ts_csv(filename):
     return df
 
 def compute_yield(algo):
-    results = algo.calc_farm()
+    results = algo.calc_farm(calc_parameters={"chunk_size_states": 1000})
     
     eval_ = foxes.output.FarmResultsEval(results)
     eval_.add_capacity(algo)
@@ -64,6 +64,7 @@ def compute_yield(algo):
 
 
 def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI = 0.05, RHO = 1.225, wake_models = ["Jensen_linear_k004","IECTI2019k_linear_k004"],model_book = None,layout_data = None,turbine_key = None):
+    foxes.reset_engine()
     my_farm = foxes.WindFarm(name=windfarm_name)
 
     if model_book is None:
@@ -112,11 +113,8 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
         states=my_states,
         rotor_model=rotor_model,
         wake_models=wake_models,
-        verbosity=0,
         partial_wakes=None,
         engine='process',
-        chunk_size_states = 2000,
-        chunk_size_points = 4000,
     )
     return my_algo
 
