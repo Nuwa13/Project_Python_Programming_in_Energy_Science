@@ -25,8 +25,8 @@ def read_ts_csv(filename):
 
 def compute_yield(algo):
     results = algo.calc_farm(calc_parameters={"chunk_size_states": 1000})
-    results = results.isel(turbine=slice(0, 166))
-    turbine_names = algo.farm.turbine_names[:166]  # Just used for indexing
+    # results = results.isel(turbine=slice(0, 166))
+    # turbine_names = algo.farm.turbine_names[:166]  # Just used for indexing
 
     eval_ = foxes.output.FarmResultsEval(results)
     eval_.add_capacity(algo)
@@ -101,11 +101,6 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
     else:
         WD_col = next((s for s in wind_data.columns.values if 'WD' in s), None)
 
-    # if 'WS' not in wind_data.columns:
-    #     print('setup_windfarm failed: wind speed data should be named "WS" but there is no such column in the input data!')
-    # if 'WD' not in wind_data.columns:
-    #     print(
-    #         'setup_windfarm failed: wind speed data should be named "WD" but there is no such column in the input data!')
     my_states = foxes.input.states.Timeseries(
         data_source=wind_data,
         output_vars=[FV.WS, FV.WD, FV.TI, FV.RHO],
@@ -120,6 +115,8 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
         rotor_model=rotor_model,
         wake_models=wake_models,
         verbosity=0,
+        chunk_size_states = 1000,
+        chunk_size_points = 4000
     )
     return my_algo
 
