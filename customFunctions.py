@@ -23,6 +23,13 @@ def read_ts_csv(filename):
         
     return df
 
+def list_flatten(list):
+    for item in list:
+        try:
+            yield from list_flatten(item)
+        except TypeError:
+            yield item
+
 def compute_yield(algo):
     results = algo.calc_farm(calc_parameters={"chunk_size_states": 1000})
     results = results.isel(turbine=slice(0, 166))
