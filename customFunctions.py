@@ -64,7 +64,6 @@ def compute_yield(algo):
 
 
 def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI = 0.05, RHO = 1.225, wake_models = ["Jensen_linear_k004","IECTI2019k_linear_k004"],model_book = None,layout_data = None,turbine_key = None):
-    foxes.reset_engine()
     my_farm = foxes.WindFarm(name=windfarm_name)
 
     if model_book is None:
@@ -114,7 +113,6 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
         rotor_model=rotor_model,
         wake_models=wake_models,
         partial_wakes=None,
-        engine='process',
     )
     return my_algo
 
