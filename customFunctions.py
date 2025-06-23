@@ -23,6 +23,13 @@ def read_ts_csv(filename):
         
     return df
 
+def extract_results(results, algo):
+    eval_ = foxes.output.FarmResultsEval(results)
+    
+    # calculate the turbine yields
+    yld_net = eval_.calc_turbine_yield(algo, annual=True)
+    yld_amb = eval_.calc_turbine_yield(algo, annual=True, ambient=True)
+
 def compute_yield(algo):
     results = algo.calc_farm(calc_parameters={"chunk_size_states": 1000})
     
@@ -113,6 +120,7 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
         rotor_model=rotor_model,
         wake_models=wake_models,
         partial_wakes=None,
+        verbosity=0
     )
     return my_algo
 
