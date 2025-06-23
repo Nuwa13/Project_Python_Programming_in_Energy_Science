@@ -115,8 +115,10 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
         rotor_model=rotor_model,
         wake_models=wake_models,
         verbosity=0,
-        chunk_size_states = 1000,
-        chunk_size_points = 4000
+        partial_wakes=None,
+        engine='process',
+        chunk_size_states = 2000,
+        chunk_size_points = 4000,
     )
     return my_algo
 
