@@ -23,12 +23,42 @@ def read_ts_csv(filename):
         
     return df
 
-def extract_results(results, algo):
-    eval_ = foxes.output.FarmResultsEval(results)
+def extract_results(res_list, algo_list):
+    eval_list = [foxes.output.FarmResultsEval(res) for res in res_list]
     
     # calculate the turbine yields
-    yld_net = eval_.calc_turbine_yield(algo, annual=True)
-    yld_amb = eval_.calc_turbine_yield(algo, annual=True, ambient=True)
+    yld_net_tot = np.sum([_eval.calc_turbine_yield(algo, annual=False) for _eval, algo in zip(eval_list, algo_list)], axis=0).squeeze()
+    yld_net_ann = np.mean([_eval.calc_turbine_yield(algo, annual=True) for _eval, algo in zip(eval_list, algo_list)], axis=0).squeeze()
+    
+    yld_amb_tot = np.sum([_eval.calc_turbine_yield(algo, annual=False, ambient=True) for _eval, algo in zip(eval_list, algo_list)], axis=0).squeeze()
+    yld_amb_ann = np.mean([_eval.calc_turbine_yield(algo, annual=True, ambient=True) for _eval, algo in zip(eval_list, algo_list)], axis=0).squeeze()
+    
+    # calculate the farm stats
+    farmP_net_mean = np.mean([_eval.calc_mean_farm_power() for _eval in eval_list])
+    farmP_amb_mean = np.mean([_eval.calc_mean_farm_power(ambient=True) for _eval in eval_list])
+    farm_eff = np.mean([_eval.calc_farm_efficiency() for _eval in eval_list])
+    
+    # read out the turbine positions
+    
+    turbine_stats = pd.DataFrame(
+        {
+            "Net Ambient Yield [GWh]"       : yld_amb_tot,
+            "Annual Ambient Yield [GWh]"    : yld_amb_ann,
+            "Net Yield [GWh]"               : yld_net_tot,
+            "Annual Yield [GWh]"            : yld_net_ann,
+            "Efficiency"                    : yld_net_tot/yld_amb_tot,
+            # "x Pos [m]"                     
+        }
+    )
+    
+    summary = {
+        "Farm Mean Ambient Power [MW]"  : farmP_amb_mean / 1e3,
+        "Farm Mean Net Power [MW]"      : farmP_net_mean / 1e3,
+        "Farm Efficiency [-]"           : farm_eff,
+        "Farm Ambient Yield [GWh]"      : np.sum(yld_amb_tot),
+        "Farm Net Yield [GWh]"          : np.sum(yld_net_tot)
+    }
+    return turbine_stats, summary
 
 def compute_yield(algo):
     results = algo.calc_farm(calc_parameters={"chunk_size_states": 1000})
