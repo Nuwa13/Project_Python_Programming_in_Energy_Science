@@ -38,19 +38,18 @@ def extract_results(res_list, algo_list):
     farmP_amb_mean = np.mean([_eval.calc_mean_farm_power(ambient=True) for _eval in eval_list])
     farm_eff = np.mean([_eval.calc_farm_efficiency() for _eval in eval_list])
     
-    # read out the turbine positions
-    
+    # Write turbine stats dataFrame
     turbine_stats = pd.DataFrame(
         {
             "Net Ambient Yield [GWh]"       : yld_amb_tot,
             "Annual Ambient Yield [GWh]"    : yld_amb_ann,
             "Net Yield [GWh]"               : yld_net_tot,
             "Annual Yield [GWh]"            : yld_net_ann,
-            "Efficiency"                    : yld_net_tot/yld_amb_tot,
-            # "x Pos [m]"                     
+            "Efficiency"                    : yld_net_tot/yld_amb_tot,                   
         }
     )
     
+    # Wtite summary dictionary
     summary = {
         "Farm Mean Ambient Power [MW]"  : farmP_amb_mean / 1e3,
         "Farm Mean Net Power [MW]"      : farmP_net_mean / 1e3,
@@ -240,7 +239,7 @@ def correct_long_term_wind(wind_model, wind_measurement, classifier, param_grid)
     X_scaledN = scaler.transform(X)
     
     # print_performance(y_train_cv,y_train, 'Cross Validation')
-    print_performance(x.iloc[:, 0], y.iloc[:, 0], 'Without Correction')
+    # print_performance(x.iloc[:, 0], y.iloc[:, 0], 'Without Correction')
     performance = print_performance(y_test_predicted, y_test, 'Model and Test Data')
 
         
