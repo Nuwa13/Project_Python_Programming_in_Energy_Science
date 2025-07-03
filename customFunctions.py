@@ -23,11 +23,45 @@ def read_ts_csv(filename):
         
     return df
 
+def extract_results(res_list, algo_list):
+    eval_list = [foxes.output.FarmResultsEval(res) for res in res_list]
+    
+    # calculate the turbine yields
+    yld_net_tot = np.sum([_eval.calc_turbine_yield(algo, annual=False) for _eval, algo in zip(eval_list, algo_list)], axis=0).squeeze()
+    yld_net_ann = np.mean([_eval.calc_turbine_yield(algo, annual=True) for _eval, algo in zip(eval_list, algo_list)], axis=0).squeeze()
+    
+    yld_amb_tot = np.sum([_eval.calc_turbine_yield(algo, annual=False, ambient=True) for _eval, algo in zip(eval_list, algo_list)], axis=0).squeeze()
+    yld_amb_ann = np.mean([_eval.calc_turbine_yield(algo, annual=True, ambient=True) for _eval, algo in zip(eval_list, algo_list)], axis=0).squeeze()
+    
+    # calculate the farm stats
+    farmP_net_mean = np.mean([_eval.calc_mean_farm_power() for _eval in eval_list])
+    farmP_amb_mean = np.mean([_eval.calc_mean_farm_power(ambient=True) for _eval in eval_list])
+    farm_eff = np.mean([_eval.calc_farm_efficiency() for _eval in eval_list])
+    
+    # Write turbine stats dataFrame
+    turbine_stats = pd.DataFrame(
+        {
+            "Net Ambient Yield [GWh]"       : yld_amb_tot,
+            "Annual Ambient Yield [GWh]"    : yld_amb_ann,
+            "Net Yield [GWh]"               : yld_net_tot,
+            "Annual Yield [GWh]"            : yld_net_ann,
+            "Efficiency"                    : yld_net_tot/yld_amb_tot,                   
+        }
+    )
+    
+    # Wtite summary dictionary
+    summary = {
+        "Farm Mean Ambient Power [MW]"  : farmP_amb_mean / 1e3,
+        "Farm Mean Net Power [MW]"      : farmP_net_mean / 1e3,
+        "Farm Efficiency [-]"           : farm_eff,
+        "Farm Ambient Yield [GWh]"      : np.sum(yld_amb_tot),
+        "Farm Net Yield [GWh]"          : np.sum(yld_net_tot)
+    }
+    return turbine_stats, summary
+
 def compute_yield(algo):
     results = algo.calc_farm(calc_parameters={"chunk_size_states": 1000})
-    results = results.isel(turbine=slice(0, 166))
-    turbine_names = algo.farm.turbine_names[:166]  # Just used for indexing
-
+    
     eval_ = foxes.output.FarmResultsEval(results)
     eval_.add_capacity(algo)
     eval_.add_capacity(algo, ambient=True)
@@ -45,7 +79,7 @@ def compute_yield(algo):
         "Ambient Yield [GWh]": yld_amb,
         "Net Yield     [GWh]": yld_net,
         "Efficiency         ": eff_per
-    }, index=turbine_names)
+    })
 
     # Farm-level summary
     farm_ambient = eval_.calc_mean_farm_power(ambient=True) / 1000  # MW
@@ -85,9 +119,11 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
                               index_col='Unnamed: 0')
         data_both = pd.concat([data1, data2], axis=0)
         layout_data = data_both.sort_values(by='y', ascending=False).reset_index(inplace=False)
+        
+    else:
+        layout_data.reset_index(drop=True, inplace=True)
 
     foxes.input.farm_layout.add_from_csv(my_farm, layout_data, turbine_models=my_turbine_key)
-
 
     if 'WS' not in '\t'.join(wind_data.columns.values):
         warnings.warn('setup_windfarm failed: wind speed data should be named "WS" but there is no such column in the input data!')
@@ -99,11 +135,6 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
     else:
         WD_col = next((s for s in wind_data.columns.values if 'WD' in s), None)
 
-    # if 'WS' not in wind_data.columns:
-    #     print('setup_windfarm failed: wind speed data should be named "WS" but there is no such column in the input data!')
-    # if 'WD' not in wind_data.columns:
-    #     print(
-    #         'setup_windfarm failed: wind speed data should be named "WD" but there is no such column in the input data!')
     my_states = foxes.input.states.Timeseries(
         data_source=wind_data,
         output_vars=[FV.WS, FV.WD, FV.TI, FV.RHO],
@@ -117,7 +148,8 @@ def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI =
         states=my_states,
         rotor_model=rotor_model,
         wake_models=wake_models,
-        verbosity=0,
+        partial_wakes=None,
+        verbosity=0
     )
     return my_algo
 
@@ -160,14 +192,14 @@ def correct_long_term_wind(wind_model, wind_measurement, classifier, param_grid)
     meas_idx = Y[Y.notnull().all(axis=1)].index
     meas_idx = [wind_measurement.index.get_loc(value) for value in meas_idx]
 
-    XtoPredict = X.loc[idx]
+    # XtoPredict = X.loc[idx]
 
     # features
     x = X.iloc[meas_idx]
 
     # target
     y = Y.iloc[meas_idx]
-    xcols = X.columns
+    # xcols = X.columns
     
     # split data into training and test data (https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html)
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=RSEED)
@@ -198,7 +230,7 @@ def correct_long_term_wind(wind_model, wind_measurement, classifier, param_grid)
 
     # make predictions using the trainings to check model performance
     # https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_predict.html
-    y_train_cv      = cross_val_predict(best_model, X_train_scaled, y_train, cv=n+2)
+    # y_train_cv      = cross_val_predict(best_model, X_train_scaled, y_train, cv=n+2)
 
     # predict values using trained model and test data (features)
     y_test_predicted = best_model.predict(X_test_scaled)
@@ -207,7 +239,7 @@ def correct_long_term_wind(wind_model, wind_measurement, classifier, param_grid)
     X_scaledN = scaler.transform(X)
     
     # print_performance(y_train_cv,y_train, 'Cross Validation')
-    print_performance(x.iloc[:, 0], y.iloc[:, 0], 'Without Correction')
+    # print_performance(x.iloc[:, 0], y.iloc[:, 0], 'Without Correction')
     performance = print_performance(y_test_predicted, y_test, 'Model and Test Data')
 
         

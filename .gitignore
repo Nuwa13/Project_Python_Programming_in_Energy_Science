@@ -2,3 +2,5 @@ requirements.txt
 /.idea/*
 __pycache__/
 *.pyc
+/AoI_ex_res/*
+/AoI_res/*
