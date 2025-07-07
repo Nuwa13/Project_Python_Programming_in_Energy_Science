@@ -23,7 +23,7 @@ def read_ts_csv(filename):
         
     return df
 
-def extract_results(res_list, algo_list):
+def extract_results(res_list, algo_list, nTurb=166):
     eval_list = [foxes.output.FarmResultsEval(res) for res in res_list]
     
     # calculate the turbine yields
@@ -54,8 +54,8 @@ def extract_results(res_list, algo_list):
         "Farm Mean Ambient Power [MW]"  : farmP_amb_mean / 1e3,
         "Farm Mean Net Power [MW]"      : farmP_net_mean / 1e3,
         "Farm Efficiency [-]"           : farm_eff,
-        "Farm Ambient Yield [GWh]"      : np.sum(yld_amb_tot),
-        "Farm Net Yield [GWh]"          : np.sum(yld_net_tot)
+        "Farm Ambient Yield [GWh]"      : np.sum(yld_amb_tot[0:nTurb]),
+        "Farm Net Yield [GWh]"          : np.sum(yld_net_tot[0:nTurb])
     }
     return turbine_stats, summary
 
