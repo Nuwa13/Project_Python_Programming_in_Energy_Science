@@ -59,45 +59,6 @@ def extract_results(res_list, algo_list, nTurb=166):
     }
     return turbine_stats, summary
 
-def compute_yield(algo):
-    results = algo.calc_farm(calc_parameters={"chunk_size_states": 1000})
-    
-    eval_ = foxes.output.FarmResultsEval(results)
-    eval_.add_capacity(algo)
-    eval_.add_capacity(algo, ambient=True)
-    eval_.add_efficiency()
-
-    # Compute per-turbine annual yields
-    yld_net_da = eval_.calc_turbine_yield(algo, annual=True)
-    yld_amb_da = eval_.calc_turbine_yield(algo, annual=True, ambient=True)
-
-    yld_net = yld_net_da.values.squeeze()
-    yld_amb = yld_amb_da.values.squeeze()
-    eff_per = yld_net / yld_amb
-
-    turbine_stats = pd.DataFrame({
-        "Ambient Yield [GWh]": yld_amb,
-        "Net Yield     [GWh]": yld_net,
-        "Efficiency         ": eff_per
-    })
-
-    # Farm-level summary
-    farm_ambient = eval_.calc_mean_farm_power(ambient=True) / 1000  # MW
-    farm_net     = eval_.calc_mean_farm_power() / 1000              # MW
-    farm_eff     = eval_.calc_farm_efficiency()
-    annual_yld   = yld_net.sum()                                    # GWh
-
-    summary = {
-        "farm_ambient_power_MW": farm_ambient,
-        "farm_net_power_MW": farm_net,
-        "farm_efficiency": farm_eff,
-        "annual_yield_GWh": annual_yld
-    }
-
-    return turbine_stats, summary
-
-
-
 
 def setup_algo(wind_data, windfarm_name = 'my_farm',rotor_model = "centre", TI = 0.05, RHO = 1.225, wake_models = ["Jensen_linear_k004","IECTI2019k_linear_k004"],model_book = None,layout_data = None,turbine_key = None):
     my_farm = foxes.WindFarm(name=windfarm_name)
