@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 /AoI_ex_res/*
 /AoI_res/*
+/AoI_ex_res_opt/*
